@@ -1,5 +1,4 @@
-//for each 8x8 tile
-//each 8x8 tile is 8 / width and 8 / height of the image
+//requires the tileset to be in indexed color palette
 const TILE_SIZE = 8;
 const color = app.pixelColor;
 const image = app.activeImage;
@@ -8,6 +7,7 @@ const palette = app.activeSprite.palette;
 function getPaletteIndex(x, y)
 {
     var pixelC = color.rgbaR(image.getPixel(x, y));
+    //console.log("x: " + x + " y: " + y + " color: " + pixelC);
 
     return pixelC;
 }
@@ -20,17 +20,13 @@ function setPixelIndex(array, index, row, col)
     }
 }
 
-function Uint8ToStr(array) {
-    var out, i;
-    out = "";
-    while (i < 32)
-    {
-        out += String.fromCharCode(array[i]);
-    }
-    return out;
-}
+//This function builds each tile as an 32 byte Uint8Array.
+//Each row of pixels is represented by 4 bytes, row n is represented by
+//bytes n, n+8, n+16, n+24
+//Each pixel in the row has a color index from 0 to 15, in binary.
+//pixel x,y is byte y+24 bit x, byte y+16 bit x, byte y+8 bit x, byte y bit x
 
-function buildTileString()
+function buildTileArray()
 {
     var out = [];
 
@@ -61,7 +57,7 @@ function buildTileString()
 }
 
 const filename = "helloworld";
-var tileSheetString = buildTileString();
+var tileSheetString = buildTileArray();
 
 storage.set(tileSheetString, "brg", filename);
 const path = storage.save("brg", filename);
