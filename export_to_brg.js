@@ -3,6 +3,7 @@ const TILE_SIZE = 8;
 const color = app.pixelColor;
 const image = app.activeImage;
 const palette = app.activeSprite.palette;
+var dialog
 
 function getPaletteIndex(x, y)
 {
@@ -56,10 +57,39 @@ function buildTileArray()
     return combinedArray;
 }
 
-const filename = "helloworld";
-var tileSheetString = buildTileArray();
+const eventHandlers = {
+    init:function(){
+        if(!app.activeImage){
+            app.createDialog('Error').addLabel('Need an image to export to bitmap');
+            return;
+        }
+        
+        if (dialog)
+            dialog.close();
+        dialog = app.createDialog('dialog');
+        dialog.addLabel('File Name');
+        dialog.addEntry("File Name", "fileName");
+        dialog.addBreak();
+        dialog.addButton("Run", "run");
+    },
 
-storage.set(tileSheetString, "brg", filename);
-const path = storage.save("brg", filename);
-console.log(path);
-console.log("Is this thing on?");
+    run_click:function(){
+        dialog.close();
+        dialog = null;
+
+        
+        const filename = storage.get("fileName");
+        var tileSheetString = buildTileArray();
+
+        storage.set(tileSheetString, "brg", filename);
+        const path = storage.save("brg", filename);
+        console.log(path);
+        console.log("Is this thing on?");
+    }
+}
+
+function onEvent(eventName){
+    var handler = eventHandlers[eventName]
+    if (typeof handler == 'function')
+        handler();
+}
